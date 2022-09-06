@@ -5,8 +5,21 @@ const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   const response = await axios.get(POSTS_URL);
-  return response.data.sort((a, b) => a.title.localeCompare(b.title));
+  return response.data;
 });
+
+export const addPosts = createAsyncThunk(
+  "posts/addPosts",
+  async (initialPost) => {
+    try {
+      const response = await axios.post(POSTS_URL, initialPost);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      return error.message;
+    }
+  }
+);
 
 const postsSlice = createSlice({
   name: "posts",
@@ -15,6 +28,7 @@ const postsSlice = createSlice({
     status: "idle", // 'idle' | 'loading' | 'succeded' | 'failed'
     error: "",
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchPosts.pending, (state, action) => {
@@ -27,6 +41,15 @@ const postsSlice = createSlice({
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(addPosts.fulfilled, (state, action) => {
+        action.payload.id = state.posts[state.posts.length - 1].id + 1;
+        state.posts.push(action.payload);
+        state.status = "succeded";
+      })
+      .addCase(addPosts.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
   },
 });
@@ -34,7 +57,5 @@ const postsSlice = createSlice({
 export const selectAllPost = (state) => state.posts.posts;
 export const getStatus = (state) => state.posts.status;
 export const getErrorMessage = (state) => state.posts.error;
-export const selectPostByUserId = (state, userId) =>
-  state.posts.posts.filter((post) => post.userId === userId);
 
 export default postsSlice.reducer;

@@ -8,9 +8,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle";
 import "./assets/css/main.css";
 import { fetchPosts } from "./redux/slices/postsSlice";
+import { fetchUsers } from "./redux/slices/usersSlice";
 
 store.dispatch(fetchPosts());
-
+store.dispatch(fetchUsers());
 const container = document.getElementById("root");
 const root = createRoot(container);
 
